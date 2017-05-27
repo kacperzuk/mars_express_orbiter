@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>DataAdventures</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="3rdparty/nouislider.min.css">
+		<style>
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:left;
+				font-weight: bold;
+
+				background-color: #111;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				color:#eee;
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+
+            #plotc {
+                width: 100%;
+                background-color: rgba(255,255,255,0.8);
+                margin: 0.5em 0;
+            }
+
+            #container {
+                width: 70%;
+            }
+
+			a {
+				color: red;
+			}
+		</style>
+	</head>
+
+	<body>
+        <div style="position:absolute; width: 30%; right: 0; top: 0">
+            <div id="plotc">
+                <canvas id="plot1"></canvas>
+            </div>
+            <div id="plotc">
+                <canvas id="plot2"></canvas>
+            </div>
+            <div id="plotc">
+                <canvas id="plot3"></canvas>
+            </div>
+        </div>
+		<div id="container">
+            <div style="width: 100%; position: absolute; bottom: 10px;" id="control">
+                <div id="slider"></slider>
+            </div>
+        </div>
+		<div id="info">
+            Current ts: <span id="ts">N/A</span>
+		</div>
+
+        <script>
+            var timestamp;
+
+            function timestamp_update(ts) {
+                timestamp = parseFloat(ts);
+                var c = document.getElementById("ts");
+                c.innerText = timestamp;
+
+                var slider = document.getElementById("slider");
+                if(slider.noUiSlider) {
+                    slider.noUiSlider.set(timestamp);
+                }
+            }
+            timestamp_update(0);
+            setInterval(function() {
+                timestamp_update(timestamp+0.01);
+            });
+        </script>
+
+		<script src="js/three.js"></script>
+		<script src="3rdparty/nouislider.min.js"></script>
+        <script src="js/controls.js"></script>
+
+		<script src="js/controls/OrbitControls.js"></script>
+
+		<script src="js/Detector.js"></script>
+
+        <script src="js/loaders/AssimpJSONLoader.js"></script>
+
+        <script src="3rdparty/Chart.bundle.min.js"></script>
+
+        <script src="js/3d.js"></script>
+        <script src="js/plots.js"></script>
+
+	</body>
+</html>
