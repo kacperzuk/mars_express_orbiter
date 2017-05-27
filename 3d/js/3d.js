@@ -60,18 +60,24 @@ function init() {
         object.traverse(function (child) {
             if (child instanceof THREE.Mesh) {
                 child.material = material;
+                child.castShadow = true;
+                child.receiveShadow = true;
                 child.geometry.translate(5.35,-14,-4);
                 child.geometry.scale(0.1,0.1,0.1);
             }
         });
 
         satellite = object;
+
         scene.add( object );
     }, onProgress, onError );
 
     var container = document.getElementById( 'container' );
 
     renderer = new THREE.WebGLRenderer({ antialias: false });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMapWidth = 1024;
+    renderer.shadowMapHeight = 1024;
     renderer.setClearColor( scene.fog.color );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( container.clientWidth, window.innerHeight );
@@ -92,6 +98,8 @@ function init() {
     mars.position.x = ( 0 ) * 1000;
     mars.position.y = ( 0 ) * 1000;
     mars.position.z = ( 0 ) * 1000;
+    mars.castShadow = true;
+    mars.receiveShadow = true;
     scene.add( mars );
 
     sunarrow = new THREE.ArrowHelper(
@@ -109,10 +117,16 @@ function init() {
 
     dlight = new THREE.DirectionalLight( 0xffffff );
     dlight.position.set( 30, 0, 0 );
+    dlight.castShadow = true;
+    dlight.shadow.camera.right     =  20;
+    dlight.shadow.camera.left     = -20;
+    dlight.shadow.camera.top      =  20;
+    dlight.shadow.camera.bottom   = -20;
+
     scene.add( dlight );
 
     light = new THREE.AmbientLight( 0x222222 );
-    scene.add( light );
+    //scene.add( light );
 
 
     window.addEventListener( 'resize', onWindowResize, false );
@@ -134,23 +148,23 @@ function animate() {
     requestAnimationFrame( animate );
 
     if (satellite) {
-        var v2d = telipse(-timestamp);
+        var v2d = telipse(-percent*Math.PI*8*3);
         var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
         v3d.y -= 8;
         v3d.z += 3;
         v3d.applyAxisAngle(new THREE.Vector3(1,0,0), -10*Math.PI/180);
         satellite.position.set(v3d.x, v3d.y, v3d.z);
-        satellite.rotation.x = timestamp/7;
-        satellite.rotation.y = timestamp/13;
-        satellite.rotation.z = timestamp/17;
+        satellite.rotation.x = percent*70;
+        satellite.rotation.y = percent*130;
+        satellite.rotation.z = percent*170;
     }
 
     if (mars) {
-        mars.rotation.y = timestamp/5;
+        mars.rotation.y = percent/20;
     }
 
     if (sunarrow) {
-        var t = timestamp/40;
+        var t = percent;
         var x = 60*Math.cos(t);
         var y = 60*Math.sin(t);
         sunarrow.position.set(x,0,y);

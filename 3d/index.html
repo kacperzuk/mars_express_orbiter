@@ -62,24 +62,35 @@
             Current ts: <span id="ts">N/A</span>
 		</div>
 
-        <script>
-            var timestamp;
+        <script src="data.js"></script>
 
-            function timestamp_update(ts) {
-                timestamp = parseFloat(ts);
+        <script>
+            var percent, timestamp, dp;
+
+            function percent_update(p) {
+                percent = parseFloat(p);
+                dp = data.datapoints[parseInt(Math.round(percent*data.datapoints.length))];
+                timestamp = dp.t;
+
                 var c = document.getElementById("ts");
-                c.innerText = timestamp;
+                c.innerText = new Date(timestamp);
 
                 var slider = document.getElementById("slider");
-                if(slider.noUiSlider) {
-                    slider.noUiSlider.set(timestamp);
+                if(slider.noUiSlider && !nosliderupdate) {
+                    slider.noUiSlider.set(100*percent);
                 }
             }
-            timestamp_update(0);
+            percent_update(0);
+
             setInterval(function() {
-                timestamp_update(timestamp+0.01);
+                var p = percent + 30*60*1000/(data.max_ts - data.min_ts)/60;
+                percent_update(p);
             });
+            function time_p() {
+                return (timestamp-data.min_ts)/(data.max_ts-data.min_ts);
+            }
         </script>
+
 
 		<script src="js/three.js"></script>
 		<script src="3rdparty/nouislider.min.js"></script>

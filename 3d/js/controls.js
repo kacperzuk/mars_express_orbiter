@@ -1,3 +1,4 @@
+var nosliderupdate = false;
 (function() {
     var slider = document.getElementById("slider");
     slider.style.marginLeft = "2em";
@@ -12,9 +13,15 @@
         }
     });
 
-    slider.noUiSlider.on("update", function() {
+    slider.noUiSlider.on("slide", function() {
         if (slider.noUiSlider) {
-            timestamp_update(slider.noUiSlider.get());
+            percent_update(slider.noUiSlider.get()/100);
         }
+    });
+    slider.noUiSlider.on("start", function() {
+        nosliderupdate = true;
+    });
+    slider.noUiSlider.on("end", function() {
+        nosliderupdate = false;
     });
 })();
