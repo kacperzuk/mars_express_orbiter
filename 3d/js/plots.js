@@ -14,6 +14,7 @@
             type: 'line',
             data: {
                 datasets: [{
+                    pointRadius: 0,
                     label: 'Sun-Mars-Earth Angle',
                     data: dat,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -65,6 +66,7 @@
             type: 'line',
             data: {
                 datasets: [{
+                    pointRadius: 0,
                     label: 'Solar Constant Mars',
                     data: dat,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -113,6 +115,7 @@
                 animation: false,
                 datasets: [{
                     label: 'Test',
+                    pointRadius: 0,
                     data: [
                         {x:0,y:0},
                         {x:1,y:1},

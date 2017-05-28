@@ -1,7 +1,7 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 var camera, controls, scene, renderer;
-var satellite, mars, sunarrow;
+var satellite, mars, sunarrow, eartharrow;
 var elipse;
 var light, dlight;
 
@@ -11,9 +11,16 @@ init();
 render(); // remove when using next line for animation loop (requestAnimationFrame)
 animate();
 
+var old_elipses = [];
+
 function regen_elipse() {
     if(elipse) {
-        scene.remove(elipse);
+        elipse.material.color = new THREE.Color(0x333333);
+        old_elipses.push(elipse);
+        if(old_elipses.length > 30) {
+            elipse = old_elipses.shift();
+            scene.remove(elipse);
+        }
     }
 
     elipse = polyline(genpoints());
@@ -47,7 +54,7 @@ function polyline(points) {
     var shape = new THREE.Shape(points);
     shape.autoClose = true;
     var geometry = shape.createPointsGeometry();
-    var line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: "blue"}));
+    var line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: "blue", linewidth:1}));
     return line;
 }
 
@@ -124,10 +131,15 @@ function init() {
     scene.add( mars );
 
     sunarrow = new THREE.ArrowHelper(
-        new THREE.Vector3(-1, 0, 0),
-        new THREE.Vector3(60, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(0, 0, 0),
         25, 0xeeeee88 );
     scene.add(sunarrow);
+    eartharrow = new THREE.ArrowHelper(
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(0, 0, 0),
+        25, 0x88888ee );
+    scene.add(eartharrow);
 
     regen_elipse();
 
@@ -143,8 +155,8 @@ function init() {
 
     scene.add( dlight );
 
-    light = new THREE.AmbientLight( 0x222222 );
-    //scene.add( light );
+    light = new THREE.AmbientLight( 0x444444 );
+    scene.add( light );
 
 
     window.addEventListener( 'resize', onWindowResize, false );
@@ -166,15 +178,27 @@ function animate() {
 
     requestAnimationFrame( animate );
 
-    var sun_angle = time_p();
+    var sun_angle = -timestamp/3600/1000/24/687 * 2 * Math.PI + Math.PI - Math.PI/10 + 30*Math.PI/180;
 
     if (sunarrow) {
         var t = sun_angle;
         var x = 60*Math.cos(t);
         var y = 60*Math.sin(t);
-        sunarrow.position.set(x,0,y);
-        sunarrow.setDirection(new THREE.Vector3(-Math.cos(t),0,-Math.sin(t)));
-        dlight.position.set(x,0,y);
+        sunarrow.position.set(0,0,0);
+        var v3d = new THREE.Vector3(Math.cos(t),0,Math.sin(t));
+        v3d.applyAxisAngle(new THREE.Vector3(-v3d.z,0,v3d.x), -25*Math.PI/180);
+        sunarrow.setDirection(v3d);
+        dlight.position.set(v3d.x,v3d.y,v3d.z);
+    }
+
+    if (eartharrow) {
+        var t = dp.sunmarsearthangle*Math.PI/180 + sun_angle;
+        var x = 60*Math.cos(t);
+        var y = 60*Math.sin(t);
+        eartharrow.position.set(0,0,0);
+        var v3d = new THREE.Vector3(Math.cos(t),0,Math.sin(t));
+        v3d.applyAxisAngle(new THREE.Vector3(-v3d.z,0,v3d.x), -25*Math.PI/180);
+        eartharrow.setDirection(v3d);
     }
 
     if (satellite) {
