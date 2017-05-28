@@ -62,22 +62,71 @@
             Current ts: <span id="ts">N/A</span>
 		</div>
 
-        <script src="data.js"></script>
 
+        <script src="data.js"></script>
         <script>
             data.max_ts = data.datapoints[data.datapoints.length-1].t;
+            data.min_ts = data.datapoints[0].t;
+            var correction = 0;
+            var peri_lat = -53*Math.PI/180;
+            var magic_one = false;
 
-            var index=Math.floor(data.datapoints.length*0.9),
+            var index=Math.floor(data.datapoints.length*0),
                 dp = data.datapoints[index],
+                events = {},
                 timestamp = dp.t;
 
             function timestamp_update(ts) {
                 timestamp = ts;
-                if (data.datapoints[index+1].t <= ts) {
+                while (data.datapoints[index+1].t <= ts) {
                     index += 1;
                     dp = data.datapoints[index];
-                }
+                    if (scene) {
+                        if(dp.perigeum) {
+                            peri_lat = Math.PI/180*dp.peri_lat;
+                            correction = (timestamp * Math.PI*2/7/3600/1000 - Math.PI/2 - Math.PI/21)%(Math.PI*2) + 5.773299832844344;
+                            var geometry = new THREE.SphereGeometry( 0.3, 32, 32 );
+                            var material =  new THREE.MeshPhongMaterial( { color:0xff0000} );
+                            var event = new THREE.Mesh(geometry, material);
+                            var v2d = otelipse(-timestamp);
+                            var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
+                            var x = 4904 * scale_factor;
+                            v3d.y -= x;
+                            v3d.z += 0;
+                            v3d.applyAxisAngle(new THREE.Vector3(1,0,0), Math.PI/2 + peri_lat);
+                            event.position.set(v3d.x, v3d.y, v3d.z);
+                            regen_elipse();
+                            console.log("EVENT peri", new Date(dp.t));
+                            scene.add(event);
+                        }
 
+                        if(dp.apogeum) {
+                            if(magic_one) {
+                                var geometry = new THREE.SphereGeometry( 0.3, 32, 32 );
+                                var material =  new THREE.MeshPhongMaterial( { color:0x00ff00} );
+                                var event = new THREE.Mesh(geometry, material);
+                                var v2d = otelipse(-timestamp);
+                                var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
+                                var x = 4904 * scale_factor;
+                                v3d.y -= x;
+                                v3d.z += 0;
+                                v3d.applyAxisAngle(new THREE.Vector3(1,0,0), Math.PI/2 + peri_lat);
+                                event.position.set(v3d.x, v3d.y, v3d.z);
+                                regen_elipse();
+                                console.log("EVENT apo", new Date(dp.t));
+                                scene.add(event);
+                            } else {
+                                magic_one = true;
+                            }
+                        }
+
+                        for (var i = index; i < data.datapoints.length; i++) {
+                            if (data.datapoints[i].perigeum) {
+                                break;
+                            }
+                        }
+                    }
+                }
                 var c = document.getElementById("ts");
                 c.innerText = new Date(timestamp);
 
@@ -85,6 +134,7 @@
                 if(slider.noUiSlider) {
                     slider.noUiSlider.set(100*(timestamp-data.min_ts)/(data.max_ts - data.min_ts));
                 }
+
             }
 
             function time_p() {
@@ -95,6 +145,7 @@
         </script>
 
 
+
 		<script src="js/three.js"></script>
 		<script src="3rdparty/nouislider.min.js"></script>
         <script src="js/controls.js"></script>
@@ -102,10 +153,12 @@
 		<script src="js/controls/OrbitControls.js"></script>
 
 		<script src="js/Detector.js"></script>
+		<script src="3rdparty/moment.js"></script>
 
         <script src="js/loaders/AssimpJSONLoader.js"></script>
 
         <script src="3rdparty/Chart.bundle.min.js"></script>
+        <script src="3rdparty/chartjs-plugin-annotation.min.js"></script>
 
         <script src="js/3d.js"></script>
         <script src="js/plots.js"></script>

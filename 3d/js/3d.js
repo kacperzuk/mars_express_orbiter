@@ -11,9 +11,26 @@ init();
 render(); // remove when using next line for animation loop (requestAnimationFrame)
 animate();
 
+function regen_elipse() {
+    if(elipse) {
+        scene.remove(elipse);
+    }
+
+    elipse = polyline(genpoints());
+    var x = 4904 * scale_factor;
+    elipse.rotation.x += Math.PI/2 + peri_lat;
+    var dif_vec = new THREE.Vector3(0,-x,0);
+    dif_vec.applyAxisAngle(new THREE.Vector3(1,0,0), Math.PI/2 + peri_lat);
+    elipse.position.set(dif_vec.x,dif_vec.y,dif_vec.z);
+    scene.add(elipse);
+}
+
+function otelipse(ts) {
+    return telipse(ts * Math.PI*2/7/3600/1000 - Math.PI/2 - Math.PI/4 - Math.PI/22 + correction);
+}
 
 function telipse(t) {
-    var a = 7071*scale_factor;;
+    var a = 7071*scale_factor;
     var b = 8605*scale_factor;
     return new THREE.Vector2(a*Math.cos(t), b*Math.sin(t));
 }
@@ -112,11 +129,7 @@ function init() {
         25, 0xeeeee88 );
     scene.add(sunarrow);
 
-    elipse = polyline(genpoints());
-    var x = 4904 * scale_factor;
-    elipse.position.set(0,-x,2);
-    elipse.rotation.x += -10 * Math.PI/180;
-    scene.add(elipse);
+    regen_elipse();
 
     // lights
 
@@ -149,7 +162,7 @@ function onWindowResize() {
 }
 
 function animate() {
-    timestamp_update(timestamp + 1000 * 3600 /60);
+    timestamp_update(timestamp + 1000 * 3600 *10/60);
 
     requestAnimationFrame( animate );
 
@@ -165,12 +178,12 @@ function animate() {
     }
 
     if (satellite) {
-        var v2d = telipse(-time_p()*Math.PI*8*3);
+        var v2d = otelipse(-timestamp);
         var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
         var x = 4904 * scale_factor;
         v3d.y -= x;
         v3d.z += 0;
-        v3d.applyAxisAngle(new THREE.Vector3(1,0,0), -10*Math.PI/180);
+        v3d.applyAxisAngle(new THREE.Vector3(1,0,0), Math.PI/2 + peri_lat);
         satellite.position.set(v3d.x, v3d.y, v3d.z);
         satellite.rotation.x = dp.sy;
         satellite.rotation.y = dp.sx + Math.PI/2 - sun_angle;
