@@ -178,7 +178,7 @@ function animate() {
 
     requestAnimationFrame( animate );
 
-    var sun_angle = -timestamp/3600/1000/24/687 * 2 * Math.PI + Math.PI - Math.PI/10 + 30*Math.PI/180;
+    var sun_angle = -timestamp/3600/1000/24/687 * 2 * Math.PI + Math.PI - Math.PI/10 -50*Math.PI/180;
 
     if (sunarrow) {
         var t = sun_angle;

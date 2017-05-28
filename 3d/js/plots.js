@@ -90,7 +90,7 @@
                 scales: {
                     yAxes: [{
                         ticks: {
-                            beginAtZero:true
+                            beginAtZero:false
                         }
                     }],
                     xAxes: [{
@@ -143,7 +143,7 @@
     function a() {
         chart1();
         chart2();
-        chart3();
+ //       chart3();
         setTimeout(a, 1000);
     }
     a();
