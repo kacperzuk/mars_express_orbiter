@@ -5,13 +5,16 @@ var satellite, mars, sunarrow;
 var elipse;
 var light, dlight;
 
+var scale_factor = 30/2/7071;
+
 init();
 render(); // remove when using next line for animation loop (requestAnimationFrame)
 animate();
 
+
 function telipse(t) {
-    var a = 30;
-    var b = 37;
+    var a = 7071*scale_factor;;
+    var b = 8605*scale_factor;
     return new THREE.Vector2(a*Math.cos(t), b*Math.sin(t));
 }
 
@@ -63,7 +66,7 @@ function init() {
                 child.castShadow = true;
                 child.receiveShadow = true;
                 child.geometry.translate(5.35,-14,-4);
-                child.geometry.scale(0.1,0.1,0.1);
+                child.geometry.scale(0.05,0.05,0.05);
             }
         });
 
@@ -91,7 +94,8 @@ function init() {
     controls.addEventListener( 'change', render ); // remove when using animation loop
     controls.enableZoom = true;
     var marstexture = new THREE.TextureLoader().load( "img/mars.gif" );
-    var geometry = new THREE.SphereGeometry( 22, 32, 32 );
+    var radius = 3396.2*scale_factor;
+    var geometry = new THREE.SphereGeometry( radius, 32, 32 );
     var material =  new THREE.MeshPhongMaterial( { color:0xffffff, map: marstexture } );
 
     mars = new THREE.Mesh( geometry, material );
@@ -109,7 +113,8 @@ function init() {
     scene.add(sunarrow);
 
     elipse = polyline(genpoints());
-    elipse.position.set(0,-8,5);
+    var x = 4904 * scale_factor;
+    elipse.position.set(0,-x,2);
     elipse.rotation.x += -10 * Math.PI/180;
     scene.add(elipse);
 
@@ -144,33 +149,38 @@ function onWindowResize() {
 }
 
 function animate() {
+    timestamp_update(timestamp + 1000 * 3600 /60);
 
     requestAnimationFrame( animate );
 
-    if (satellite) {
-        var v2d = telipse(-percent*Math.PI*8*3);
-        var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
-        v3d.y -= 8;
-        v3d.z += 3;
-        v3d.applyAxisAngle(new THREE.Vector3(1,0,0), -10*Math.PI/180);
-        satellite.position.set(v3d.x, v3d.y, v3d.z);
-        satellite.rotation.x = percent*70;
-        satellite.rotation.y = percent*130;
-        satellite.rotation.z = percent*170;
-    }
-
-    if (mars) {
-        mars.rotation.y = percent/20;
-    }
+    var sun_angle = time_p();
 
     if (sunarrow) {
-        var t = percent;
+        var t = sun_angle;
         var x = 60*Math.cos(t);
         var y = 60*Math.sin(t);
         sunarrow.position.set(x,0,y);
         sunarrow.setDirection(new THREE.Vector3(-Math.cos(t),0,-Math.sin(t)));
         dlight.position.set(x,0,y);
     }
+
+    if (satellite) {
+        var v2d = telipse(-time_p()*Math.PI*8*3);
+        var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
+        var x = 4904 * scale_factor;
+        v3d.y -= x;
+        v3d.z += 0;
+        v3d.applyAxisAngle(new THREE.Vector3(1,0,0), -10*Math.PI/180);
+        satellite.position.set(v3d.x, v3d.y, v3d.z);
+        satellite.rotation.x = dp.sy;
+        satellite.rotation.y = dp.sx + Math.PI/2 - sun_angle;
+        satellite.rotation.z = dp.sz;
+    }
+
+    if (mars) {
+        mars.rotation.y = time_p()*Math.PI*8;
+    }
+
 
     controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
 

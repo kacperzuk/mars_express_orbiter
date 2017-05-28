@@ -65,30 +65,33 @@
         <script src="data.js"></script>
 
         <script>
-            var percent, timestamp, dp;
+            data.max_ts = data.datapoints[data.datapoints.length-1].t;
 
-            function percent_update(p) {
-                percent = parseFloat(p);
-                dp = data.datapoints[parseInt(Math.round(percent*data.datapoints.length))];
+            var index=Math.floor(data.datapoints.length*0.9),
+                dp = data.datapoints[index],
                 timestamp = dp.t;
+
+            function timestamp_update(ts) {
+                timestamp = ts;
+                if (data.datapoints[index+1].t <= ts) {
+                    index += 1;
+                    dp = data.datapoints[index];
+                }
 
                 var c = document.getElementById("ts");
                 c.innerText = new Date(timestamp);
 
                 var slider = document.getElementById("slider");
-                if(slider.noUiSlider && !nosliderupdate) {
-                    slider.noUiSlider.set(100*percent);
+                if(slider.noUiSlider) {
+                    slider.noUiSlider.set(100*(timestamp-data.min_ts)/(data.max_ts - data.min_ts));
                 }
             }
-            percent_update(0);
 
-            setInterval(function() {
-                var p = percent + 30*60*1000/(data.max_ts - data.min_ts)/60;
-                percent_update(p);
-            });
             function time_p() {
-                return (timestamp-data.min_ts)/(data.max_ts-data.min_ts);
+                var a = (timestamp-data.min_ts)/(data.max_ts-data.min_ts);
+                return a;
             }
+            time_p();
         </script>
 
 
