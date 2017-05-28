@@ -108,42 +108,24 @@
     }
 
     function chart3() {
-        var ctx = document.getElementById("plot3").getContext('2d');
-        new Chart(ctx, {
-            type: 'scatter',
-            data: {
-                animation: false,
-                datasets: [{
-                    label: 'Test',
-                    pointRadius: 0,
-                    data: [
-                        {x:0,y:0},
-                        {x:1,y:1},
-                        {x:2,y:4},
-                        {x:3,y:9},
-                        {x:4,y:16}
-                    ],
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: [ 'rgba(255,99,132,1)', ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        }
-                    }]
-                }
-            }
-        });
+        var canvas = document.getElementById("powerlines");
+        canvas.width = canvas.parentNode.clientWidth;
+        canvas.height = canvas.parentNode.clientHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        //var y = canvas.width*(0.05);
+        //var y = canvas.width*(0.96);
+        var y = canvas.width*(0.08 + (0.96-0.09)*(timestamp - data.min_ts)/(data.max_ts - data.min_ts));
+        ctx.moveTo(y,0);
+        ctx.lineTo(y,canvas.height);
+        ctx.stroke();
     }
 
     function a() {
         chart1();
         chart2();
- //       chart3();
+        chart3();
         setTimeout(a, 1000);
     }
     a();

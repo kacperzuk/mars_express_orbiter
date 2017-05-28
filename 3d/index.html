@@ -27,7 +27,7 @@
 
             #plotc {
                 width: 100%;
-                background-color: rgba(255,255,255,0.8);
+                background-color: rgba(255,255,255,1);
                 margin: 0.5em 0;
             }
 
@@ -49,6 +49,10 @@
             <div id="plotc">
                 <canvas id="plot2"></canvas>
             </div>
+            <div style="position: relative">
+                <img src="img/PowerLines.png" style="width: 100%" />
+                <canvas id="powerlines" style="position: absolute; top: 0; left: 0; background-color: rgba(255,255,255,0)"/>
+            </div>
         </div>
 		<div id="container">
             <div style="width: 100%; position: absolute; bottom: 10px;" id="control">
@@ -64,14 +68,15 @@
         <script>
             data.max_ts = data.datapoints[data.datapoints.length-1].t;
             data.min_ts = data.datapoints[0].t;
-            var correction = 0;
-            var peri_lat = -53*Math.PI/180;
-            var magic_one = false;
-            var events = [];
 
             var index=Math.floor(data.datapoints.length*0),
                 dp = data.datapoints[index],
                 timestamp = dp.t;
+
+            var correction = 0;
+            var peri_lat = -1.497143432360736;
+            var magic_one = false;
+            var events = [];
 
             function timestamp_update(ts) {
                 timestamp = ts;
@@ -83,7 +88,7 @@
                             peri_lat = Math.PI/180*dp.peri_lat;
                             correction = (dp.t * Math.PI*2/7/3600/1000 - Math.PI/2 - Math.PI/21)%(Math.PI*2) + 5.773299832844344;
                             var geometry = new THREE.SphereGeometry( 0.3, 32, 32 );
-                            var material =  new THREE.MeshPhongMaterial( { color:0xff0000} );
+                            var material =  new THREE.MeshBasicMaterial( { color:0xff0000} );
                             var event = new THREE.Mesh(geometry, material);
                             var v2d = otelipse(-dp.t);
                             var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
@@ -93,15 +98,15 @@
                             v3d.applyAxisAngle(new THREE.Vector3(1,0,0), Math.PI/2 + peri_lat);
                             event.position.set(v3d.x, v3d.y, v3d.z);
                             regen_elipse();
-                            console.log("EVENT peri", new Date(dp.t));
+                            console.log("EVENT peri", dp.peri_lat, new Date(dp.t));
                             events.push(event);
                             scene.add(event);
                         }
 
-                        if(dp.apogeum) {
+                        if(dp.apogeum && events.length > 0) {
                             if(magic_one) {
                                 var geometry = new THREE.SphereGeometry( 0.3, 32, 32 );
-                                var material =  new THREE.MeshPhongMaterial( { color:0x00ff00} );
+                                var material =  new THREE.MeshBasicMaterial( { color:0x00ff00} );
                                 var event = new THREE.Mesh(geometry, material);
                                 var v2d = otelipse(-dp.t);
                                 var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
@@ -119,9 +124,9 @@
                             }
                         }
 
-                        if(dp.penumbra_start || dp.penumbra_end) {
+                        if(events.length > 0 && (dp.penumbra_start || dp.penumbra_end)) {
                             var geometry = new THREE.SphereGeometry( 0.1, 32, 32 );
-                            var material =  new THREE.MeshPhongMaterial( { color:0xaaaaaa} );
+                            var material =  new THREE.MeshBasicMaterial( { color:0xaaaaaa} );
                             var event = new THREE.Mesh(geometry, material);
                             var v2d = otelipse(-dp.t);
                             var v3d = new THREE.Vector3(v2d.x, v2d.y, 0);
